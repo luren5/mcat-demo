@@ -92,10 +92,3 @@ contract Ballot {
 	}
 }
 
-contract Test {
-	string public foo;
-	
-	function modifyFoo(string val) {
-		foo = val;
-	}
-}

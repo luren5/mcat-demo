@@ -1,9 +1,7 @@
-model: "development"
-
-development:
+Development:
     ip: "localhost"
-    rpc_port: "8080"
-    account: "0x34851ee7379fd43be25df08ab84b7402269fefc8"
+    rpc_port: "8090"
+    account: "0x6e423da3705daaa16a3cdef560293139bb277a3e"
     password: "123456"
 
 Production:
