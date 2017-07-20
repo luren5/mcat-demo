@@ -1,0 +1,65 @@
+<!doctype html>
+
+<title>mact-Online Solidity IDE</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="/static/css/docs.css">
+<link rel="stylesheet" href="/static/css/codemirror.css">
+<link rel="stylesheet" href="http://v3.bootcss.com/dist/css/bootstrap.min.css">
+<script src="/static/js/codemirror.js"></script>
+<script src="/static/js/sol.js"></script>
+<script src="/static/js/active-line.js"></script>
+<script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+
+<style type="text/css">
+      .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;height:800px;}
+	  #form-up-sol,#open-file-input {display:none;} 
+	  #operate-nav {height:44px;padding:10px;background-color:yellow;}
+</style>
+
+<div id=nav>
+  	<a href="https://github.com/luren5/mcat">
+	<h1>mcat</h1>
+	<img id=logo src="/static/images/logo.png">
+	</a>
+ <ul>
+    <li><a class=active href="#">Project Name</a>
+  </ul>
+	<div id="operate-nav">
+		<span class="glyphicon glyphicon-folder-open" aria-hidden="true" id="open-file"></span>
+		<form action="upload-file" enctype="multipart/form-data" method="post" id="form-up-sol">
+			<input id="open-file-input" type="file" name="new_sol" />
+		</form>
+		<span class="glyphicon glyphicon-plus" aria-hidden="true" id="new-file"></span>		
+	</div>
+</div>
+
+<article>
+<h4>{{.fileName}}</h4>
+<form>
+	<textarea id="code" name="code">
+			{{.fileContent}}
+	</textarea>
+</form>
+
+<script>
+var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+  mode: "javascript",
+  styleActiveLine: true,
+  lineNumbers: true,
+  lineWrapping: true
+});
+
+
+$(document).ready(function(){
+	$("#open-file").click(function() {
+		$('#open-file-input').trigger("click");
+	})
+
+	$('#open-file-input').change(function() {
+		alert($('#open-file-input').val())	
+		$("#form-up-sol").submit()
+	})
+});
+
+</script>
+</article>
