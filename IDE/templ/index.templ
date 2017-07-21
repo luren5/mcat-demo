@@ -11,9 +11,12 @@
 <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
 
 <style type="text/css">
-      .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;height:800px;}
+      .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;height:600px;}
 	  #form-up-sol,#open-file-input {display:none;} 
 	  #operate-nav {height:44px;padding:10px;background-color:yellow;}
+	  .file-list-li{text-align:left;padding-left:15px;}
+	  .file-dir{text-align:left;font-size:18px;padding-left:10px;}
+	  .file-list{background-color:#e8f2ff;}
 </style>
 
 <div id=nav>
@@ -30,8 +33,19 @@
 			<input id="open-file-input" type="file" name="new_sol" />
 		</form>
 		<span class="glyphicon glyphicon-plus" aria-hidden="true" id="new-file"></span>		
+		<span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
 	</div>
-</div>
+	<ul class="file-list">
+		<li class="file-dir">contracts </li>
+		{{ if not .fileSet }}
+			{{.error}}
+		{{else}}
+			{{range $v := .fileSet}}
+			<li class="file-list-li"><a href="/edit/{{$v}}">- {{$v}} </a></li>
+			{{end}}
+		{{ end }}
+	</ul>
+	</div>
 
 <article>
 <h4>{{.fileName}}</h4>
@@ -59,7 +73,28 @@ $(document).ready(function(){
 		alert($('#open-file-input').val())	
 		$("#form-up-sol").submit()
 	})
+
+	$("#new-file").click(function() {
+		var fileName = prompt("Please input file name.")	
+		if(fileName) {
+			$.get("/new-file/" + fileName, function(result){
+					if(!result.status) {
+						window.location = "/edit/"+fileName;
+					} else {
+						alert(result.msg)
+					}	
+			})
+		}
+		
+	})
 });
 
 </script>
+
+
+
+<div id="console" style="background-color:yellow;">
+fdasfafa
+</div>
 </article>
+
