@@ -13,27 +13,28 @@
 <style type="text/css">
       .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;height:600px;}
 	  #form-up-sol,#open-file-input {display:none;} 
-	  #operate-nav {height:44px;padding:10px;background-color:yellow;}
+	  #operate-nav {height:44px;padding:10px;}
 	  .file-list-li{text-align:left;padding-left:15px;}
 	  .file-dir{text-align:left;font-size:18px;padding-left:10px;}
 	  .file-list{background-color:#e8f2ff;}
+	  .r-detail{word-wrap: break-word; word-break: normal;}
+	  #console{display:none;}
+	  #console-header{background-color:#f5f5f5;}
 </style>
 
 <div id=nav>
   	<a href="https://github.com/luren5/mcat">
 	<h1>mcat</h1>
 	<img id=logo src="/static/images/logo.png">
-	</a>
- <ul>
-    <li><a class=active href="#">Project Name</a>
+	</a> <ul> <li><a class=active href="#">Project Name</a>
   </ul>
 	<div id="operate-nav">
 		<span class="glyphicon glyphicon-folder-open" aria-hidden="true" id="open-file"></span>
-		<form action="upload-file" enctype="multipart/form-data" method="post" id="form-up-sol">
+		<form action="/upload-file" enctype="multipart/form-data" method="post" id="form-up-sol">
 			<input id="open-file-input" type="file" name="new_sol" />
 		</form>
 		<span class="glyphicon glyphicon-plus" aria-hidden="true" id="new-file"></span>		
-		<span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+		<span class="glyphicon glyphicon-refresh" aria-hidden="true" id="refresh-list"></span>
 	</div>
 	<ul class="file-list">
 		<li class="file-dir">contracts </li>
@@ -48,12 +49,21 @@
 	</div>
 
 <article>
-<h4>{{.fileName}}</h4>
+<h4 id="fileName">{{.fileName}}</h4>
 <form>
 	<textarea id="code" name="code">
 			{{.fileContent}}
 	</textarea>
 </form>
+
+<div id="console">
+		<p id="console-header">here is header<p>
+		<p>Waiting for compiling…</p>
+		<div id="compiled-res">
+		</div>
+</div>
+</article>
+
 
 <script>
 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
@@ -70,7 +80,6 @@ $(document).ready(function(){
 	})
 
 	$('#open-file-input').change(function() {
-		alert($('#open-file-input').val())	
 		$("#form-up-sol").submit()
 	})
 
@@ -87,14 +96,66 @@ $(document).ready(function(){
 		}
 		
 	})
+
+	$("#refresh-list").click(function() {
+		$.get("/refresh-list", function(result) {
+				if(result.status == 0) {
+					$(".file-list-li").remove()			
+					var msg = result.msg
+					var l = msg.length
+					for(var i = 0; i < l; i++) {
+						var fileName = msg[i]	
+						var node = '<li class="file-list-li"><a href="/edit/' + fileName + '">- ' + fileName + '</a></li>'
+						$(".file-list").append(node)
+					}
+				} 
+		})	
+	})
 });
 
+$(document).keyup(function(e){
+	var key = e.which;
+	if(e.ctrlKey && e.which == 66) { //ctrl + b
+		var fileName = $("#fileName").html()			
+		if(!fileName) {
+			return 
+		}
+		// upload
+		var content = editor.getValue()  
+		if(!content) {
+			return
+		}
+		var data = {"fileContent": content, "fileName":fileName}
+
+		// do compile
+		$.post("/do-compile?r="+ Math.random(), data, function(result) {
+			$("#console").show()
+			$(".r-detail").remove()
+
+			if(result.status == 0){
+
+				var l = result.msg.length
+				for(var i = 0; i < l; i++) {
+					var msg = result.msg
+					var r = msg[i]			
+					var abi = r.abi
+					var name = r.name
+					var bin = r.bin
+
+					var rContent = name + "<br/>abi:<br/> " + abi + "<br/>bin: " + bin + "<br/>"
+					var node = $("<p class='r-detail'>" + rContent + "</p>")
+					
+					$("#compiled-res").append(node)
+				}
+			} else {
+				var rContent = fileName + "<br/>" + result.msg 
+				var node = $("<p class='r-detail'>" + rContent + "</p>")
+				$("#compiled-res").append(node)
+					
+			}	
+		})
+	}
+})
+
 </script>
-
-
-
-<div id="console" style="background-color:yellow;">
-fdasfafa
-</div>
-</article>
 
