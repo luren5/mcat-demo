@@ -18,6 +18,8 @@
 	  .file-dir{text-align:left;font-size:18px;padding-left:10px;}
 	  .file-list{background-color:#e8f2ff;}
 	  .r-detail{word-wrap: break-word; word-break: normal;}
+	  .glyphicon-remove{display:none;font-size:8px;width:5px;height:5px;}
+	  .file-name{cursor: pointer;}
 	  #console{display:none;}
 	  #console-header{background-color:#f5f5f5;}
 </style>
@@ -42,7 +44,10 @@
 			{{.error}}
 		{{else}}
 			{{range $v := .fileSet}}
-			<li class="file-list-li"><a href="/edit/{{$v}}">- {{$v}} </a></li>
+			<li class="file-list-li">
+			- <span class="file-name">{{$v}} &nbsp;&nbsp;</span>
+			<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> &nbsp;&nbsp;&nbsp;&nbsp;
+			</li>
 			{{end}}
 		{{ end }}
 	</ul>
@@ -111,6 +116,30 @@ $(document).ready(function(){
 				} 
 		})	
 	})
+
+	// show/hide remove icon
+	$(".file-name").mouseover(function(e) {
+			var t = $(e.target)
+			var fileName = t.text().replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+			$(".file-list .glyphicon-remove").hide()
+			t.next(".glyphicon-remove").show().bind("click", function() {
+				$.get("/remove-file/" + fileName, function() {
+					t.parent().remove()
+				})	
+
+			})
+	})
+
+	// locate to edit file
+	$(".file-name").click(function(e) {
+		var t = $(e.target)
+		var fileName = t.text()
+		fileName = fileName.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+		if(fileName) {
+			window.location.href = "/edit/" + fileName
+		}
+	})
+
 });
 
 $(document).keyup(function(e){
@@ -157,5 +186,8 @@ $(document).keyup(function(e){
 	}
 })
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
 </script>
 
