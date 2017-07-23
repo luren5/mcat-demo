@@ -6,8 +6,9 @@
 <link rel="stylesheet" href="/static/css/codemirror.css">
 <link rel="stylesheet" href="http://v3.bootcss.com/dist/css/bootstrap.min.css">
 <script src="/static/js/codemirror.js"></script>
-<script src="/static/js/sol.js"></script>
+<script src="/static/js/javascript.js"></script>
 <script src="/static/js/active-line.js"></script>
+<script src="/static/js/mcat.js"></script>
 <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
 
 <style type="text/css">
@@ -56,9 +57,7 @@
 <article>
 <h4 id="fileName">{{.fileName}}</h4>
 <form>
-	<textarea id="code" name="code">
-			{{.fileContent}}
-	</textarea>
+		<textarea id="code" name="code">{{.fileContent}}</textarea>
 </form>
 
 <div id="console">
@@ -77,7 +76,6 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
   lineNumbers: true,
   lineWrapping: true
 });
-
 
 $(document).ready(function(){
 	$("#open-file").click(function() {
@@ -110,7 +108,7 @@ $(document).ready(function(){
 					var l = msg.length
 					for(var i = 0; i < l; i++) {
 						var fileName = msg[i]	
-						var node = '<li class="file-list-li"><a href="/edit/' + fileName + '">- ' + fileName + '</a></li>'
+						var node = '<li class="file-list-li">- <span class="file-name">'+ fileName + '&nbsp;&nbsp;</span><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> &nbsp;&nbsp;&nbsp;&nbsp;</li>'
 						$(".file-list").append(node)
 					}
 				} 
@@ -122,12 +120,22 @@ $(document).ready(function(){
 			var t = $(e.target)
 			var fileName = t.text().replace(/^\s\s*/, '').replace(/\s\s*$/, '');
 			$(".file-list .glyphicon-remove").hide()
-			t.next(".glyphicon-remove").show().bind("click", function() {
-				$.get("/remove-file/" + fileName, function() {
+			t.next(".glyphicon-remove").show()
+	})
+	// do remove
+	$(".file-list").click(function(e){
+		var t = $(e.target)
+		if(t.hasClass("glyphicon-remove")) {
+			fileName = t.prev().text().replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+			$.get("/remove-file/" + fileName, function() {
+				var currentFile = $("#fileName").text() 	
+				if(currentFile == fileName) {
+					window.location.href = "/"
+				} else {
 					t.parent().remove()
-				})	
-
-			})
+				}
+			})	
+		}
 	})
 
 	// locate to edit file
@@ -189,5 +197,7 @@ $(document).keyup(function(e){
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
+
+
 </script>
 
