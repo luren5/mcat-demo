@@ -62,8 +62,8 @@
 
 <div id="console">
 		<p id="console-header">here is header<p>
-		<p>Waiting for compiling…</p>
-		<div id="compiled-res">
+		<p id="console-notice"></p>
+		<div id="console-res">
 		</div>
 </div>
 </article>
@@ -152,21 +152,30 @@ $(document).ready(function(){
 
 $(document).keyup(function(e){
 	var key = e.which;
-	if(e.ctrlKey && e.which == 66) { //ctrl + b
-		var fileName = $("#fileName").html()			
-		if(!fileName) {
-			return 
-		}
-		// upload
-		var content = editor.getValue()  
-		if(!content) {
-			return
-		}
-		var data = {"fileContent": content, "fileName":fileName}
+	var fileName = $("#fileName").html()			
+	var content = editor.getValue()  
+	
+	if(!fileName || !content) {
+		return 
+	}
+	var data = {"fileContent": content, "fileName":fileName}
 
+	if(e.ctrlKey && e.which == 83) {
+			$("#console").show()
+			$("#console-notice").text("Saving file…")
+			$("#console-res").text("")
+			$.post("/save-file?r="+ Math.random(), data, function(result) {
+				$("#console-res").text(result.msg)								
+			})
+	}
+
+
+	if(e.ctrlKey && e.which == 66) { //ctrl + b
 		// do compile
 		$.post("/do-compile?r="+ Math.random(), data, function(result) {
 			$("#console").show()
+			$("#console-notice").text("Waiting for compiling…")
+			$("#console-res").text("")
 			$(".r-detail").remove()
 
 			if(result.status == 0){
@@ -182,12 +191,12 @@ $(document).keyup(function(e){
 					var rContent = name + "<br/>abi:<br/> " + abi + "<br/>bin: " + bin + "<br/>"
 					var node = $("<p class='r-detail'>" + rContent + "</p>")
 					
-					$("#compiled-res").append(node)
+					$("#console-res").append(node)
 				}
 			} else {
 				var rContent = fileName + "<br/>" + result.msg 
 				var node = $("<p class='r-detail'>" + rContent + "</p>")
-				$("#compiled-res").append(node)
+				$("#console-res").append(node)
 					
 			}	
 		})
