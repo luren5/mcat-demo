@@ -24,51 +24,50 @@
 	  #console-header{background-color:#e8f2ff;}
 	  .active{font-size:24px;}
 </style>
-<div class="left-container">
-	<div id=nav>
-	  	<a href="https://github.com/luren5/mcat">
-		<h1>mcat</h1>
-		<img id=logo src="/static/images/logo.png">
-		</a> 
-		<ul><li><a class="active">{{.projectName}}</a></li></ul>
-		<div id="operate-nav">
-			<span class="glyphicon glyphicon-folder-open" aria-hidden="true" id="open-file"></span>
-			<form action="/upload-file" enctype="multipart/form-data" method="post" id="form-up-sol">
-				<input id="open-file-input" type="file" name="new_sol" />
-			</form>
-			<span class="glyphicon glyphicon-plus" aria-hidden="true" id="new-file"></span>		
-			<span class="glyphicon glyphicon-refresh" aria-hidden="true" id="refresh-list"></span>
-		</div>
-		<ul class="file-list">
-			<li class="file-dir">contracts </li>
-			{{ if not .fileSet }}
-				{{.error}}
-			{{else}}
-				{{range $v := .fileSet}}
-				<li class="file-list-li">
-				- <span class="file-name">{{$v}} &nbsp;&nbsp;</span>
-				<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> &nbsp;&nbsp;&nbsp;&nbsp;
-				</li>
-				{{end}}
-			{{ end }}
-		</ul>
-		</div>
 
-	<article>
-	<h4 id="fileName">{{.fileName}}</h4>
-	<form>
-			<textarea id="code" name="code">{{.fileContent}}</textarea>
-	</form>
+<div id=nav>
+  	<a href="https://github.com/luren5/mcat">
+	<h1>mcat</h1>
+	<img id=logo src="/static/images/logo.png">
+	</a> 
+	<ul><li><a class="active">{{.projectName}}</a></li></ul>
+	<div id="operate-nav">
+		<span class="glyphicon glyphicon-folder-open" aria-hidden="true" id="open-file"></span>
+		<form action="/upload-file" enctype="multipart/form-data" method="post" id="form-up-sol">
+			<input id="open-file-input" type="file" name="new_sol" />
+		</form>
+		<span class="glyphicon glyphicon-plus" aria-hidden="true" id="new-file"></span>		
+		<span class="glyphicon glyphicon-refresh" aria-hidden="true" id="refresh-list"></span>
+	</div>
+	<ul class="file-list">
+		<li class="file-dir">contracts </li>
+		{{ if not .fileSet }}
+			{{.error}}
+		{{else}}
+			{{range $v := .fileSet}}
+			<li class="file-list-li">
+			- <span class="file-name">{{$v}} &nbsp;&nbsp;</span>
+			<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> &nbsp;&nbsp;&nbsp;&nbsp;
+			</li>
+			{{end}}
+		{{ end }}
+	</ul>
+	</div>
 
-	<div id="console">
-			<p id="console-header">here is header<p>
-			<p id="console-notice"></p>
-			<div id="console-res"></div>
-	</div>
-	</article>
-	</div>
-<div class="right-container">
-</div>	
+<article>
+<h4 id="fileName">{{.fileName}}</h4>
+<form>
+		<textarea id="code" name="code">{{.fileContent}}</textarea>
+</form>
+
+<div id="console">
+		<p id="console-header">here is header<p>
+		<p id="console-notice"></p>
+		<div id="console-res">
+		</div>
+</div>
+</article>
+
 
 <script>
 var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
