@@ -26,7 +26,15 @@
 	  .active{font-size:24px;}
 	  #console-notice{padding-left:12px;}
 	  #console-res{padding-left:12px;}
+	  #error-bar{text-align:center;}
+	  .compile-res{display:none; padding-right:25px;}
 </style>
+
+<!-- error bar -->
+<div id="error-bar" class="alert alert-warning alert-dismissible fade in" role="alert">
+      
+</div>
+
 <div class="left-container">
 	<div id=nav>
 	  	<a href="https://github.com/luren5/mcat">
@@ -64,10 +72,23 @@
 
 	</article>
 	</div>
+
 <div class="right-container">
 	<div id="console-header">Console</div>
 	<div id="console-notice"></div>
-	<div id="console-res"></div>
+	<div id="console-res">
+		
+	</div>
+</div>	
+
+<!--compile res-->
+<div class="compile-res">
+	<br/>
+	<span>abi</span>	
+	<textarea class="form-control abi" rows="10"></textarea>
+	<br/>
+	<span>bin</span>	
+	<textarea class="form-control bin" rows="20"></textarea>
 </div>	
 
 <script>
@@ -79,6 +100,7 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
 });
 
 $(document).ready(function(){
+
 	$("#open-file").click(function() {
 		$('#open-file-input').trigger("click");
 	})
@@ -94,7 +116,7 @@ $(document).ready(function(){
 					if(!result.status) {
 						window.location = "/edit/"+fileName;
 					} else {
-						alert(result.msg)
+						$("#error-bar").show().text(result.msg).fadOut(5000)
 					}	
 			})
 		}
@@ -123,6 +145,7 @@ $(document).ready(function(){
 			$(".file-list .glyphicon-remove").hide()
 			t.next(".glyphicon-remove").show()
 	})
+
 	// do remove
 	$(".file-list").click(function(e){
 		var t = $(e.target)
@@ -148,20 +171,6 @@ $(document).ready(function(){
 			window.location.href = "/edit/" + fileName
 		}
 	})
-
-	// search
-	$("#search_box button").click(function() {
-			// loading 
-		var keyword = $("#search_box input").val()
-		if(key) {
-			$.get("/search-doc/" + keyword, function(result) {
-				var converter = new showdown.Converter(),
-    			html = converter.makeHtml(result.msg);
-				$("#search_result").html(html)
-			})	
-		}
-	})
-
 });
 
 $(document).keyup(function(e){
@@ -174,24 +183,28 @@ $(document).keyup(function(e){
 	}
 	var data = {"fileContent": content, "fileName":fileName}
 
+	// save file
 	if(e.ctrlKey && e.which == 83) {
 			$("#console-notice").text("Saving file…")
 			$("#console-res").text("")
 			$.post("/save-file?r="+ Math.random(), data, function(result) {
-				$("#console-res").text(result.msg)								
+				if(result.status == 0) {
+					$("#console-res").text(result.msg)						
+				} else {
+					$("#error-bar").show().text(result.msg).fadOut(5000)
+				}
 			})
 	}
 
 
+	// compile
 	if(e.ctrlKey && e.which == 66) { //ctrl + b
 		// do compile
+		$("#console-res .compile-res").remove()
+		$("#console-notice").text("Waiting for compiling "+ fileName+ "…")
+
 		$.post("/do-compile?r="+ Math.random(), data, function(result) {
-			$("#console-notice").text("Waiting for compiling…")
-			$("#console-res").text("")
-			$(".r-detail").remove()
-
 			if(result.status == 0){
-
 				var l = result.msg.length
 				for(var i = 0; i < l; i++) {
 					var msg = result.msg
@@ -200,25 +213,20 @@ $(document).keyup(function(e){
 					var name = r.name
 					var bin = r.bin
 
-					var rContent = name + "<br/>abi:<br/> " + abi + "<br/>bin: " + bin + "<br/>"
-					var node = $("<p class='r-detail'>" + rContent + "</p>")
-					
+					var node = $(".compile-res").clone()
 					$("#console-res").append(node)
+					$("#console-res .compile-res").children(".abi").text(abi)
+					$("#console-res .compile-res").children(".bin").text(bin)
+					$("#console-res .compile-res").show()
 				}
 			} else {
 				var rContent = fileName + "<br/>" + result.msg 
 				var node = $("<p class='r-detail'>" + rContent + "</p>")
 				$("#console-res").append(node)
-					
 			}	
 		})
 	}
 })
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}
-
 
 </script>
 
