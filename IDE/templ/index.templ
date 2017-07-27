@@ -10,6 +10,7 @@
 <script src="/static/js/active-line.js"></script>
 <script src="/static/js/mcat.js"></script>
 <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.7.1/showdown.min.js"></script>
 
 <style type="text/css">
       .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;height:600px;}
@@ -21,8 +22,10 @@
 	  .r-detail{word-wrap: break-word; word-break: normal;}
 	  .glyphicon-remove{display:none;font-size:8px;width:5px;height:5px;}
 	  .file-name{cursor: pointer;}
-	  #console-header{background-color:#e8f2ff;}
+	  #console-header{background-color:#e8f2ff;height:50px;padding-left:12px;vertical-align:bottom;}
 	  .active{font-size:24px;}
+	  #console-notice{padding-left:12px;}
+	  #console-res{padding-left:12px;}
 </style>
 <div class="left-container">
 	<div id=nav>
@@ -53,21 +56,18 @@
 			{{ end }}
 		</ul>
 		</div>
-
 	<article>
 	<h4 id="fileName">{{.fileName}}</h4>
 	<form>
 			<textarea id="code" name="code">{{.fileContent}}</textarea>
 	</form>
 
-	<div id="console">
-			<p id="console-header">here is header<p>
-			<p id="console-notice"></p>
-			<div id="console-res"></div>
-	</div>
 	</article>
 	</div>
 <div class="right-container">
+	<div id="console-header">Console</div>
+	<div id="console-notice"></div>
+	<div id="console-res"></div>
 </div>	
 
 <script>
@@ -149,6 +149,19 @@ $(document).ready(function(){
 		}
 	})
 
+	// search
+	$("#search_box button").click(function() {
+			// loading 
+		var keyword = $("#search_box input").val()
+		if(key) {
+			$.get("/search-doc/" + keyword, function(result) {
+				var converter = new showdown.Converter(),
+    			html = converter.makeHtml(result.msg);
+				$("#search_result").html(html)
+			})	
+		}
+	})
+
 });
 
 $(document).keyup(function(e){
@@ -162,7 +175,6 @@ $(document).keyup(function(e){
 	var data = {"fileContent": content, "fileName":fileName}
 
 	if(e.ctrlKey && e.which == 83) {
-			$("#console").show()
 			$("#console-notice").text("Saving file…")
 			$("#console-res").text("")
 			$.post("/save-file?r="+ Math.random(), data, function(result) {
@@ -174,7 +186,6 @@ $(document).keyup(function(e){
 	if(e.ctrlKey && e.which == 66) { //ctrl + b
 		// do compile
 		$.post("/do-compile?r="+ Math.random(), data, function(result) {
-			$("#console").show()
 			$("#console-notice").text("Waiting for compiling…")
 			$("#console-res").text("")
 			$(".r-detail").remove()
