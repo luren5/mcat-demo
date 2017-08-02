@@ -10,6 +10,7 @@
 <script src="/static/js/active-line.js"></script>
 <script src="/static/js/mcat.js"></script>
 <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.7.1/showdown.min.js"></script>
 
 <style type="text/css">
 .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;height: 100%;position: absolute;bottom: 0;top: 69px;right: 0;left: 0;}
@@ -21,11 +22,23 @@
 .r-detail{word-wrap: break-word; word-break: normal;}
 .glyphicon-remove{display:none;font-size:8px;width:5px;height:5px;}
 .file-name{cursor: pointer;}
-#console{display:none;}
+
 #console-header{background-color:#f5f5f5;}
 .active{font-size:24px;}
 .editor-box{height: 100%;}
+ #console-header{background-color:#e8f2ff;height:50px;padding-left:12px;vertical-align:bottom;}
+.active{font-size:24px;}
+#console-notice{padding-left:12px;}
+#console-res{padding-left:12px;}
+#error-bar{text-align:center;}
+.compile-res{display:none; padding-right:25px;}
 </style>
+
+<!-- error bar -->
+<div id="error-bar" class="alert alert-warning alert-dismissible fade in" role="alert">
+      
+</div>
+
 <div class="left-container">
 	<div id=nav>
 	  	<a href="https://github.com/luren5/mcat">
@@ -55,7 +68,6 @@
 			{{ end }}
 		</ul>
 		</div>
-
 	<article>
 		<h4 id="fileName">{{.fileName}}</h4>
 		<div class="editor-box">
@@ -69,7 +81,23 @@
 		</div>
 	</article>
 	</div>
+
 <div class="right-container">
+	<div id="console-header">Console</div>
+	<div id="console-notice"></div>
+	<div id="console-res">
+		
+	</div>
+</div>	
+
+<!--compile res-->
+<div class="compile-res">
+	<br/>
+	<span>abi</span>	
+	<textarea class="form-control abi" rows="10"></textarea>
+	<br/>
+	<span>bin</span>	
+	<textarea class="form-control bin" rows="20"></textarea>
 </div>	
 
 <script>
@@ -81,6 +109,7 @@ var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
 });
 
 $(document).ready(function(){
+
 	$("#open-file").click(function() {
 		$('#open-file-input').trigger("click");
 	})
@@ -96,7 +125,7 @@ $(document).ready(function(){
 					if(!result.status) {
 						window.location = "/edit/"+fileName;
 					} else {
-						alert(result.msg)
+						$("#error-bar").show().text(result.msg).fadOut(5000)
 					}	
 			})
 		}
@@ -125,6 +154,7 @@ $(document).ready(function(){
 			$(".file-list .glyphicon-remove").hide()
 			t.next(".glyphicon-remove").show()
 	})
+
 	// do remove
 	$(".file-list").click(function(e){
 		var t = $(e.target)
@@ -150,7 +180,6 @@ $(document).ready(function(){
 			window.location.href = "/edit/" + fileName
 		}
 	})
-
 });
 
 $(document).keyup(function(e){
@@ -163,26 +192,28 @@ $(document).keyup(function(e){
 	}
 	var data = {"fileContent": content, "fileName":fileName}
 
+	// save file
 	if(e.ctrlKey && e.which == 83) {
-			$("#console").show()
 			$("#console-notice").text("Saving file…")
 			$("#console-res").text("")
 			$.post("/save-file?r="+ Math.random(), data, function(result) {
-				$("#console-res").text(result.msg)								
+				if(result.status == 0) {
+					$("#console-res").text(result.msg)						
+				} else {
+					$("#error-bar").show().text(result.msg).fadOut(5000)
+				}
 			})
 	}
 
 
+	// compile
 	if(e.ctrlKey && e.which == 66) { //ctrl + b
 		// do compile
+		$("#console-res .compile-res").remove()
+		$("#console-notice").text("Waiting for compiling "+ fileName+ "…")
+
 		$.post("/do-compile?r="+ Math.random(), data, function(result) {
-			$("#console").show()
-			$("#console-notice").text("Waiting for compiling…")
-			$("#console-res").text("")
-			$(".r-detail").remove()
-
 			if(result.status == 0){
-
 				var l = result.msg.length
 				for(var i = 0; i < l; i++) {
 					var msg = result.msg
@@ -191,25 +222,20 @@ $(document).keyup(function(e){
 					var name = r.name
 					var bin = r.bin
 
-					var rContent = name + "<br/>abi:<br/> " + abi + "<br/>bin: " + bin + "<br/>"
-					var node = $("<p class='r-detail'>" + rContent + "</p>")
-					
+					var node = $(".compile-res").clone()
 					$("#console-res").append(node)
+					$("#console-res .compile-res").children(".abi").text(abi)
+					$("#console-res .compile-res").children(".bin").text(bin)
+					$("#console-res .compile-res").show()
 				}
 			} else {
 				var rContent = fileName + "<br/>" + result.msg 
 				var node = $("<p class='r-detail'>" + rContent + "</p>")
 				$("#console-res").append(node)
-					
 			}	
 		})
 	}
 })
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}
-
 
 </script>
 
