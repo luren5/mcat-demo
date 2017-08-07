@@ -13,21 +13,25 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.7.1/showdown.min.js"></script>
 
 <style type="text/css">
-      .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;height:600px;}
-	  #form-up-sol,#open-file-input {display:none;} 
-	  #operate-nav {height:44px;padding:10px;}
-	  .file-list-li{text-align:left;padding-left:15px;}
-	  .file-dir{text-align:left;font-size:18px;padding-left:10px;}
-	  .file-list{background-color:#e8f2ff;}
-	  .r-detail{word-wrap: break-word; word-break: normal;}
-	  .glyphicon-remove{display:none;font-size:8px;width:5px;height:5px;}
-	  .file-name{cursor: pointer;}
-	  #console-header{background-color:#e8f2ff;height:50px;padding-left:12px;vertical-align:bottom;}
-	  .active{font-size:24px;}
-	  #console-notice{padding-left:12px;}
-	  #console-res{padding-left:12px;}
-	  #error-bar{text-align:center;}
-	  .compile-res{display:none; padding-right:25px;}
+.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;height: 100%;position: absolute;bottom: 0;top: 69px;right: 0;left: 0;}
+#form-up-sol,#open-file-input {display:none;} 
+#operate-nav {height:44px;padding:10px;}
+.file-list-li{text-align:left;padding-left:15px;}
+.file-dir{text-align:left;font-size:18px;padding-left:10px;}
+.file-list{background-color:#e8f2ff;}
+.r-detail{word-wrap: break-word; word-break: normal;}
+.glyphicon-remove{display:none;font-size:8px;width:5px;height:5px;}
+.file-name{cursor: pointer;}
+
+#console-header{background-color:#f5f5f5;}
+.active{font-size:24px;}
+.editor-box{height: 100%;}
+ #console-header{background-color:#e8f2ff;height:50px;padding-left:12px;vertical-align:bottom;}
+.active{font-size:24px;}
+#console-notice{padding-left:12px;}
+#console-res{padding-left:12px;}
+#error-bar{text-align:center;}
+.compile-res{display:none; padding-right:25px;}
 </style>
 
 <!-- error bar -->
@@ -65,11 +69,16 @@
 		</ul>
 		</div>
 	<article>
-	<h4 id="fileName">{{.fileName}}</h4>
-	<form>
+		<h4 id="fileName">{{.fileName}}</h4>
+		<div class="editor-box">
 			<textarea id="code" name="code">{{.fileContent}}</textarea>
-	</form>
+		</div>
 
+		<div id="console">
+				<p id="console-header">here is header<p>
+				<p id="console-notice"></p>
+				<div id="console-res"></div>
+		</div>
 	</article>
 	</div>
 
